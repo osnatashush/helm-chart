@@ -1,0 +1,84 @@
+apiVersion: batch/v1
+kind: Job
+{{- $fullname := include "job.fullname" . }}
+metadata:
+  name: {{ include "job.fullname" . }}
+  labels: {{- include "job.labels" . | nindent 4 }}
+spec:
+  parallelism: {{ .Values.replicaCount }}
+  backoffLimit: {{ .Values.backoffLimit }}
+  template:
+    metadata:
+      {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        {{- include "job.selectorLabels" . | nindent 8 }}
+    spec:
+      restartPolicy: {{ .Values.restartPolicy }}
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 12 }}
+      {{- end }}
+      serviceAccountName: {{ include "job.serviceAccountName" . }}
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 12 }}
+      containers:
+        - name: {{ .Chart.Name }}
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 16 }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          {{- if .Values.image.args }}
+          args:
+            {{- range .Values.image.args }}
+              - {{ . | quote }}
+            {{- end }}
+          {{- end }}
+          resources:
+            {{- toYaml .Values.resources | nindent 16 }}
+          {{- if .Values.env }}
+          env:
+            {{- range $key, $value := .Values.env }}
+            - name: {{ $key }}
+              value: {{ $value | quote }}
+            {{- end }}
+            {{- if .Values.secrets.enabled }}
+            {{- range .Values.secrets.toEnv }}
+            - name: {{ .env }}
+              valueFrom:
+                secretKeyRef:
+                  name: {{ $fullname }}-secrets
+                  key: {{ .secret }}
+            {{- end }}
+            {{- end }}
+          {{- end }}
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+      {{- if .Values.healthCheck.enabled }}
+      livenessProbe:
+        exec:
+          command:
+            {{- range .Values.healthCheck.healthCheckCommand }}
+            - {{ . | quote }}
+            {{- end }}
+        initialDelaySeconds: {{ .Values.healthCheck.initialDelaySeconds }}
+      readinessProbe:
+        exec:
+          command:
+            {{- range .Values.healthCheck.healthCheckCommand }}
+            - {{ . | quote }}
+            {{- end }}
+        initialDelaySeconds: {{ .Values.healthCheck.initialDelaySeconds }}
+      {{- end }} 
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
