@@ -23,6 +23,7 @@ healthCheck:
 
 secrets:
   enabled: false
+  refreshInterval: 15m
 
 imagePullSecrets: []
 nameOverride: ""
