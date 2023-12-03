@@ -17,6 +17,14 @@ healthCheck:
   healthCheckPath: /
   initialDelaySeconds: 0
 
+
+# Can be RollingUpdate or Recreate. Recreate is faster but causes a momentary outage.
+deploymentStrategy: RollingUpdate
+
+# Only used if deploymentStrategy is RollingUpdate
+maxUnavailable: 25%
+maxSurge: 25%
+
 secrets:
   enabled: false
   refreshInterval: 15m

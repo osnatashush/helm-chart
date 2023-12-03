@@ -6,6 +6,16 @@ metadata:
   labels:
     {{- include "app.labels" . | nindent 4 }}
 spec:
+  {{- if eq .Values.deploymentStrategy "Recreate" }}
+  strategy:
+    type: Recreate
+  {{- else if eq .Values.deploymentStrategy "RollingUpdate" }}
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: {{ .Values.maxUnavailable }}
+      maxSurge: {{ .Values.maxSurge }}
+  {{- end }}
   {{- if not .Values.autoscaling.enabled }}
   replicas: {{ .Values.replicaCount }}
   {{- end }}
