@@ -18,7 +18,9 @@ healthCheck:
   initialDelaySeconds: 0
 
 persistence:
+  size: 1Gi
   mountPath: /data
+  storageClass: ""
 
 secrets:
   enabled: false
