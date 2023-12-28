@@ -24,7 +24,17 @@ persistence:
 
 secrets:
   enabled: false
+  secretStoreRef:
+    name: aws-secret-store
+    kind: ClusterSecretStore
   refreshInterval: 15m
+  secretsDir: /etc/secrets
+  toEnv: []
+  # - secret: secret-name
+  #   env: ENV_VAR_NAME
+  toFiles: []
+  # - name: secret-name
+
 
 imagePullSecrets: []
 nameOverride: ""

@@ -40,8 +40,9 @@ spec:
             - {{ . | quote }}
             {{- end }}
           {{- end }}
-          {{- if .Values.env }}
           env:
+            - name: APP_NAME
+              value: {{ $fullname }}
             {{- range $key, $value := .Values.env }}
             - name: {{ $key }}
               value: {{ $value | quote }}
@@ -55,7 +56,6 @@ spec:
                   key: {{ .secret }}
             {{- end }}
           {{- end }}
-          {{- end }} 
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           ports:
             - name: http
@@ -83,7 +83,12 @@ spec:
           volumeMounts:
           - name: data
             mountPath: {{ .Values.persistence.mountPath }}
-
+          {{- if .Values.secrets.enabled }}
+          {{- if .Values.secrets.toFiles}}
+          - name: secrets-volume
+            mountPath: {{ .Values.secrets.secretsDir }}
+          {{- end }}
+          {{- end }}
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}
@@ -95,6 +100,19 @@ spec:
       {{- with .Values.tolerations }}
       tolerations:
         {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- if .Values.secrets.enabled }}
+      {{- if .Values.secrets.toFiles }}
+      volumes:
+      - name: secrets-volume
+        secret:
+          secretName: {{ $fullname }}-secrets
+          items:
+          {{- range .Values.secrets.toFiles }}
+          - key: {{ .name }}
+            path: {{ .name }}
+          {{- end }}
+      {{- end }}
       {{- end }}
   volumeClaimTemplates:
   - metadata:
