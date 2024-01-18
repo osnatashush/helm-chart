@@ -71,10 +71,8 @@ spec:
             {{- end }}
           {{- if and .Values.secrets.enabled .Values.secrets.toEnvironments }}
           envFrom:
-            {{- range .Values.secrets.toEnvironments }}
             - secretRef:
-                name: {{ .name }}
-            {{- end }}
+                name: {{ $fullname }}-secrets-env
           {{- end }}
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           ports:
