@@ -17,13 +17,18 @@ backoffLimit: 0
 restartPolicy: "Never"
 
 healthCheck:
-  enabled: true
+  enabled: false
   healthCheckCommand: ["cat", "/tmp/health"]
   initialDelaySeconds: 0
 
 secrets:
   enabled: false
   refreshInterval: 15m
+  toEnv: []
+  # - secret: secret-name
+  #   env: ENV_VAR_NAME
+  toEnvironments: []
+  # - name: secret-name
 
 imagePullSecrets: []
 nameOverride: ""

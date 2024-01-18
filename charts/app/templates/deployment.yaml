@@ -52,11 +52,15 @@ spec:
           env:
             - name: APP_NAME
               value: {{ $fullname }}
+            - name: APP_IMAGE_NAME
+              value: {{ .Values.image.repository }}
+            - name: APP_IMAGE_TAG
+              value: {{ .Values.image.tag | default .Chart.AppVersion }}
             {{- range $key, $value := .Values.env }}
             - name: {{ $key }}
               value: {{ $value | quote }}
             {{- end }}
-            {{- if .Values.secrets.enabled }}
+            {{- if and .Values.secrets.enabled .Values.secrets.toEnv }}
             {{- range .Values.secrets.toEnv }}
             - name: {{ .env }}
               valueFrom:
@@ -64,7 +68,14 @@ spec:
                   name: {{ $fullname }}-secrets
                   key: {{ .secret }}
             {{- end }}
-          {{- end }} 
+            {{- end }}
+          {{- if and .Values.secrets.enabled .Values.secrets.toEnvironments }}
+          envFrom:
+            {{- range .Values.secrets.toEnvironments }}
+            - secretRef:
+                name: {{ .name }}
+            {{- end }}
+          {{- end }}
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           ports:
             - name: http

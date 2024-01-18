@@ -57,6 +57,14 @@ spec:
                 {{- end }}
                 {{- end }}
               {{- end }}
+
+              {{- if and .Values.secrets.enabled .Values.secrets.toEnvironments }}
+              envFrom:
+                {{- range .Values.secrets.toEnvironments }}
+                - secretRef:
+                    name: {{ .name }}
+                {{- end }}
+              {{- end }}
               imagePullPolicy: {{ .Values.image.pullPolicy }}
               {{- if .Values.healthCheck.enabled }}
               livenessProbe:

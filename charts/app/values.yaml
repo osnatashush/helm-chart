@@ -37,6 +37,8 @@ secrets:
   #   env: ENV_VAR_NAME
   toFiles: []
   # - name: secret-name
+  toEnvironments: []
+  # - name: secret-name
 
 
 imagePullSecrets: []
