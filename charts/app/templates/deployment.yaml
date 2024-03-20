@@ -90,11 +90,19 @@ spec:
               path: {{ .Values.healthCheck.healthCheckPath | quote }}
               port: http
             initialDelaySeconds: {{ .Values.healthCheck.initialDelaySeconds }}
+            timeoutSeconds: {{ .Values.healthCheck.timeoutSeconds }}
+            periodSeconds: {{ .Values.healthCheck.periodSeconds }}
+            successThreshold: {{ .Values.healthCheck.successThreshold }}
+            failureThreshold: {{ .Values.healthCheck.failureThreshold }}
           readinessProbe:
             httpGet:
               path: {{ .Values.healthCheck.healthCheckPath | quote }}
               port: http
             initialDelaySeconds: {{ .Values.healthCheck.initialDelaySeconds }}
+            timeoutSeconds: {{ .Values.healthCheck.timeoutSeconds }}
+            periodSeconds: {{ .Values.healthCheck.periodSeconds }}
+            successThreshold: {{ .Values.healthCheck.successThreshold }}
+            failureThreshold: {{ .Values.healthCheck.failureThreshold }}
           {{- end }} 
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
