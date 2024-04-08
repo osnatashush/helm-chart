@@ -102,12 +102,26 @@ resources: {}
   #   cpu: 100m
   #   memory: 128Mi
 
+
+# autoscaling using KEDA (requires KEDA to be installed in the cluster)
 autoscaling:
   enabled: false
-  minReplicas: 1
-  maxReplicas: 100
-  targetCPUUtilizationPercentage: 80
-  # targetMemoryUtilizationPercentage: 80
+  # interval in seconds to poll for metrics
+  pollingInterval: 30
+  # cooldown period in seconds
+  cooldownPeriod: 300
+  # minReplicaCount is the lower limit for the number of replicas that can be set by the autoscaler
+  minReplicaCount: 1
+  # maxReplicaCount is the upper limit for the number of replicas that can be set by the autoscaler
+  maxReplicaCount: 10
+  sqs:
+    enabled: false
+    # queueURL is the URL of the SQS queue (required)
+    queueURL: ""
+    # queueLength is the length of the queue that triggers scaling (required)
+    queueLength: "5"
+    # awsRegion is the AWS region of the SQS queue (required)
+    awsRegion: ""
 
 nodeSelector: {}
 

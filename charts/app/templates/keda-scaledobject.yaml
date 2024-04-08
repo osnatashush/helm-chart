@@ -1,0 +1,21 @@
+{{- if .Values.autoscaling.enabled }}
+apiVersion: keda.sh/v1alpha1
+kind: ScaledObject
+metadata:
+  name: {{ include "app.fullname" . }}-scaledobject
+spec:
+  scaleTargetRef:
+    name: {{ include "app.fullname" . }}
+  pollingInterval: {{ .Values.autoscaling.pollingInterval }}
+  cooldownPeriod: {{ .Values.autoscaling.cooldownPeriod }}
+  minReplicaCount: {{ .Values.autoscaling.minReplicaCount }}
+  maxReplicaCount: {{ .Values.autoscaling.maxReplicaCount }}
+  triggers:
+  {{- if .Values.autoscaling.sqs.enabled }}
+  - type: aws-sqs-queue
+    metadata:
+      queueURL: {{ .Values.autoscaling.sqs.queueURL }}
+      queueLength: {{ .Values.autoscaling.sqs.queueLength }}
+      awsRegion: {{ .Values.autoscaling.sqs.awsRegion }}
+  {{- end }}
+{{- end }}
