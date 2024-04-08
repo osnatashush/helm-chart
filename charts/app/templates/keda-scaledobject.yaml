@@ -17,5 +17,6 @@ spec:
       queueURL: {{ .Values.autoscaling.sqs.queueURL }}
       queueLength: {{ .Values.autoscaling.sqs.queueLength | quote }}
       awsRegion: {{ .Values.autoscaling.sqs.awsRegion }}
+      identityOwner: operator
   {{- end }}
 {{- end }}
