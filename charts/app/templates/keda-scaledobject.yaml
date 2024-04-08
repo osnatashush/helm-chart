@@ -15,7 +15,7 @@ spec:
   - type: aws-sqs-queue
     metadata:
       queueURL: {{ .Values.autoscaling.sqs.queueURL }}
-      queueLength: {{ .Values.autoscaling.sqs.queueLength }}
+      queueLength: {{ .Values.autoscaling.sqs.queueLength | quote }}
       awsRegion: {{ .Values.autoscaling.sqs.awsRegion }}
   {{- end }}
 {{- end }}
