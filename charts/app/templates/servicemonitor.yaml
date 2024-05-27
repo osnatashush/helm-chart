@@ -19,7 +19,7 @@ spec:
     scrapeTimeout: {{ .Values.serviceMonitor.scrapeTimeout }}
     {{- end }}
     honorLabels: true
-    port: metrics
+    port: {{ .Values.serviceMonitor.metricsPort }}
   selector:
     matchLabels:
       {{- include "app.labels" . | nindent 6 }}
