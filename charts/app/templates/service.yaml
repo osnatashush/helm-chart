@@ -11,7 +11,7 @@ spec:
       targetPort: http
       protocol: TCP
       name: http
-    {{- if .Values.serviceMonitor.enabled }}
+    {{- if and .Values.serviceMonitor.enabled (ne .Values.serviceMonitor.metricsPort .Values.image.containerPort) }}
     - port: {{ .Values.serviceMonitor.metricsPort }}
       targetPort: metrics
       protocol: TCP
