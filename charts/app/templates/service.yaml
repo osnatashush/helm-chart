@@ -17,5 +17,8 @@ spec:
       protocol: TCP
       name: metrics
     {{- end}}
+  {{- if .Values.sessionAffinity.enabled }}
+  sessionAffinity: ClientIP
+  {{- end}}
   selector:
     {{- include "app.selectorLabels" . | nindent 4 }}
