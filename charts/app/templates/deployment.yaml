@@ -60,20 +60,26 @@ spec:
             - name: {{ $key }}
               value: {{ $value | quote }}
             {{- end }}
-            {{- if and .Values.secrets.enabled .Values.secrets.toEnv }}
-            {{- range .Values.secrets.toEnv }}
+          {{- if or .Values.configmaps.enabled .Values.secrets.enabled }}
+          envFrom:
+          {{- range .Values.configmaps.names }}
+            - configMapRef:
+                name: {{ . }}
+          {{- end }}
+          {{- if and .Values.secrets.enabled .Values.secrets.toEnv }}
+          {{- range .Values.secrets.toEnv }}
             - name: {{ .env }}
               valueFrom:
                 secretKeyRef:
                   name: {{ $fullname }}-secrets
                   key: {{ .secret }}
-            {{- end }}
-            {{- end }}
+          {{- end }}
+          {{- end }}
           {{- if and .Values.secrets.enabled .Values.secrets.toEnvironments }}
-          envFrom:
             - secretRef:
                 name: {{ $fullname }}-secrets-env
           {{- end }}
+          {{- end }} 
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           ports:
             - name: http

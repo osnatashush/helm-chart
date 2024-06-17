@@ -138,3 +138,8 @@ serviceMonitor:
   enabled: false
   interval: 30s
   metricsPort: 9111
+
+
+configmaps:
+  enabled: false
+  names: []
