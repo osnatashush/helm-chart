@@ -1,4 +1,4 @@
-{{- if .Values.autoscaling.enabled }}
+{{- if .Values.autoscaling.sqs.enabled }}
 apiVersion: keda.sh/v1alpha1
 kind: ScaledObject
 metadata:
@@ -11,12 +11,10 @@ spec:
   minReplicaCount: {{ .Values.autoscaling.minReplicaCount }}
   maxReplicaCount: {{ .Values.autoscaling.maxReplicaCount }}
   triggers:
-  {{- if .Values.autoscaling.sqs.enabled }}
   - type: aws-sqs-queue
     metadata:
       queueURL: {{ .Values.autoscaling.sqs.queueURL }}
       queueLength: {{ .Values.autoscaling.sqs.queueLength | quote }}
       awsRegion: {{ .Values.autoscaling.sqs.awsRegion }}
       identityOwner: operator
-  {{- end }}
 {{- end }}

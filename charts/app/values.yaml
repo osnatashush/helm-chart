@@ -108,7 +108,6 @@ resources: {}
 
 # autoscaling using KEDA (requires KEDA to be installed in the cluster)
 autoscaling:
-  enabled: false
   # interval in seconds to poll for metrics
   pollingInterval: 30
   # cooldown period in seconds
@@ -125,6 +124,14 @@ autoscaling:
     queueLength: "5"
     # awsRegion is the AWS region of the SQS queue (required)
     awsRegion: ""
+  http:
+    enabled: false
+    hosts: []
+  memory:
+    enabled: false
+    percentage: "80"
+    # Allowed types are 'Utilization' or 'AverageValue'
+    metricType: "Utilization"
 
 nodeSelector: {}
 
