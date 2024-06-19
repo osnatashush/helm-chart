@@ -20,6 +20,6 @@ spec:
     replicas:
         min: {{ .Values.autoscaling.minReplicaCount }}
         max: {{ .Values.autoscaling.maxReplicaCount }}
-    scaledownPeriod: {{ .Values.autoscaling.pollingInterval }}
+    scaledownPeriod: {{ .Values.autoscaling.cooldownPeriod }}
 {{- end }}
 
