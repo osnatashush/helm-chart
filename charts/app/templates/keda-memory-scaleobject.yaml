@@ -10,7 +10,7 @@ spec:
   - type: memory
     metricType: {{ .Values.autoscaling.memory.metricType }}
     metadata:
-      value: {{ .Values.autoscaling.memory.percentage }}
+      value: {{ .Values.autoscaling.memory.percentage | quote }}
 {{- end }}
 
 
