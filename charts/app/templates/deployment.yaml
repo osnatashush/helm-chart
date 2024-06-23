@@ -38,6 +38,80 @@ spec:
       serviceAccountName: {{ include "app.serviceAccountName" . }}
       securityContext:
         {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      {{- if .Values.initContainer.enabled }}  
+      initContainer:
+        - name: {{ .Chart.Name }}-init
+          securityContext:
+            {{- toYaml .Values.initContainer.securityContext | nindent 12 }}
+          image: "{{ .Values.initContainer.image.repository }}:{{ .Values.initContainer.image.tag | default .Chart.AppVersion }}"
+          {{- if .Values.image.args }}
+          args:
+            {{- range .Values.initContainer.image.args }}
+            - {{ . | quote }}
+            {{- end }}
+          {{- end }}
+          env:
+            - name: APP_NAME
+              value: {{ $fullname }}
+            - name: APP_IMAGE_NAME
+              value: {{ .Values.initContainer.image.repository }}
+            - name: APP_IMAGE_TAG
+              value: {{ .Values.initContainer.image.tag | default .Chart.AppVersion }}
+            {{- range $key, $value := .Values.initContainer.env }}
+            - name: {{ $key }}
+              value: {{ $value | quote }}
+            {{- end }}
+          {{- if or .Values.initContainer.configmaps.enabled .Values.initContainer.secrets.enabled }}
+          envFrom:
+          {{- range .Values.initContainer.configmaps.names }}
+            - configMapRef:
+                name: {{ . }}
+          {{- end }}
+          {{- if and .Values.initContainer.secrets.enabled .Values.initContainer.secrets.toEnv }}
+          {{- range .Values.initContainer.secrets.toEnv }}
+            - name: {{ .env }}
+              valueFrom:
+                secretKeyRef:
+                  name: {{ $fullname }}-secrets
+                  key: {{ .secret }}
+          {{- end }}
+          {{- end }}
+          {{- if and .Values.initContainer.secrets.enabled .Values.initContainer.secrets.toEnvironments }}
+            - secretRef:
+                name: {{ $fullname }}-secrets-env
+          {{- end }}
+          {{- end }} 
+          imagePullPolicy: {{ .Values.initContainer.image.pullPolicy }}
+          {{- if .Values.healthCheck.enabled }}
+          livenessProbe:
+            httpGet:
+              path: {{ .Values.initContainer.healthCheck.healthCheckPath | quote }}
+              port: http
+            initialDelaySeconds: {{ .Values.initContainer.healthCheck.initialDelaySeconds }}
+            timeoutSeconds: {{ .Values.initContainer.healthCheck.timeoutSeconds }}
+            periodSeconds: {{ .Values.initContainer.healthCheck.periodSeconds }}
+            successThreshold: {{ .Values.initContainer.healthCheck.successThreshold }}
+            failureThreshold: {{ .Values.initContainer.healthCheck.failureThreshold }}
+          readinessProbe:
+            httpGet:
+              path: {{ .Values.initContainer.healthCheck.healthCheckPath | quote }}
+              port: http
+            initialDelaySeconds: {{ .Values.initContainer.healthCheck.initialDelaySeconds }}
+            timeoutSeconds: {{ .Values.initContainer.healthCheck.timeoutSeconds }}
+            periodSeconds: {{ .Values.initContainer.healthCheck.periodSeconds }}
+            successThreshold: {{ .Values.initContainer.healthCheck.successThreshold }}
+            failureThreshold: {{ .Values.initContainer.healthCheck.failureThreshold }}
+          {{- end }} 
+          resources:
+            {{- toYaml .Values.initContainer.resources | nindent 12 }}
+          {{- if .Values.initContainer.secrets.enabled }}
+          {{- if .Values.initContainer.secrets.toFiles}}
+          volumeMounts:
+          - name: secrets-volume
+            mountPath: {{ .Values.initContainer.secrets.secretsDir }}
+          {{- end }}
+          {{- end }}
+      {{- end }}   
       containers:
         - name: {{ .Chart.Name }}
           securityContext:
