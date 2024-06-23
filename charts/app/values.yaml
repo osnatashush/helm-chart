@@ -138,6 +138,17 @@ nodeSelector: {}
 tolerations: []
 
 affinity: {}
+# To use node affinity, add the following lines and specify your affinity rules:
+# affinity:
+#   nodeAffinity:
+#     requiredDuringSchedulingIgnoredDuringExecution:
+#       nodeSelectorTerms:
+#         - matchExpressions:
+#             - key: labelName
+#               operator: In
+#               values:
+#                 - labelName1
+#                 - labelName2
 
 env: {}
 
