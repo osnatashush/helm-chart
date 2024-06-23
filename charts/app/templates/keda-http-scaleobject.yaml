@@ -8,6 +8,7 @@ metadata:
 spec:
     hosts:
       - {{ include "app.fullname" . }}.{{ .Release.Namespace }}
+      - {{ include "app.fullname" . }}.{{ .Release.Namespace }}.svc.cluster.local
     {{- range .Values.autoscaling.http.hosts }}
       - {{ . }}
     {{- end }}  
