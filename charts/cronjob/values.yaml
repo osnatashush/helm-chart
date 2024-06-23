@@ -21,6 +21,10 @@ healthCheck:
   healthCheckCommand: ["cat", "/tmp/health"]
   initialDelaySeconds: 0
 
+concurrencyPolicy: "Forbid"
+successfulJobsHistoryLimit: 3
+failedJobsHistoryLimit: 1
+
 secrets:
   enabled: false
   refreshInterval: 15m
