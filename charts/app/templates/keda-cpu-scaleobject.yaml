@@ -1,0 +1,18 @@
+{{- if .Values.autoscaling.cpu.enabled }}
+apiVersion: keda.sh/v1alpha1
+kind: ScaledObject
+metadata:
+  name: {{ include "app.fullname" . }}-scaledobject
+spec:
+  scaleTargetRef:
+    name:  {{ include "app.fullname" . }} 
+  pollingInterval: {{ .Values.autoscaling.pollingInterval }}
+  cooldownPeriod: {{ .Values.autoscaling.cooldownPeriod }}
+  minReplicaCount: {{ .Values.autoscaling.minReplicaCount }}
+  maxReplicaCount: {{ .Values.autoscaling.maxReplicaCount }}
+  triggers:
+  - type: cpu
+    metricType: {{ .Values.autoscaling.cpu.metricType }}
+    metadata:
+      value: {{ .Values.autoscaling.cpu.percentage | quote }}
+{{- end }}
