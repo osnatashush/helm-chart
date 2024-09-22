@@ -30,10 +30,13 @@ maxSurge: 25%
 
 secrets:
   enabled: false
+  annotations:
+    "helm.sh/hook": pre-upgrade
+    "helm.sh/resource-policy": delete
   secretStoreRef:
     name: aws-secret-store
     kind: ClusterSecretStore
-  refreshInterval: 15m
+  refreshInterval: 120h
   secretsDir: /etc/secrets
   toEnv: []
   # - secret: secret-name
@@ -189,23 +192,6 @@ initContainer:
     periodSeconds: 10
     successThreshold: 1
     failureThreshold: 3
-  secrets:
-    enabled: false
-    annotations:
-      "helm.sh/hook": pre-upgrade
-      "helm.sh/resource-policy": delete
-    secretStoreRef:
-      name: aws-secret-store
-      kind: ClusterSecretStore
-    refreshInterval: 15m
-    secretsDir: /etc/secrets
-    toEnv: []
-    # - secret: secret-name
-    #   env: ENV_VAR_NAME
-    toFiles: []
-    # - name: secret-name
-    toEnvironments: []
-    # - name: secret-name
 
   imagePullSecrets: []
   nameOverride: ""
