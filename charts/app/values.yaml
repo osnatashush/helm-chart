@@ -191,6 +191,9 @@ initContainer:
     failureThreshold: 3
   secrets:
     enabled: false
+    annotations:
+      "helm.sh/hook": pre-upgrade
+      "helm.sh/resource-policy": delete
     secretStoreRef:
       name: aws-secret-store
       kind: ClusterSecretStore
