@@ -14,7 +14,11 @@ image:
 
 healthCheck:
   enabled: true
+  # Can be any of: https, file
+  healthCheckType: https
+  # if healthCheckType is file,recommended to put the file in /tmp/ready
   healthCheckPath: /
+  # if healthCheckType is file, then initial and period should be 5
   initialDelaySeconds: 0
   timeoutSeconds: 1
   periodSeconds: 10

@@ -166,14 +166,24 @@ spec:
             {{- end}}
           {{- if .Values.healthCheck.enabled }}
           livenessProbe:
+            {{- if eq .Values.healthCheck.healthCheckType "https" }}
             httpGet:
               path: {{ .Values.healthCheck.healthCheckPath | quote }}
               port: http
+            {{- else if eq .Values.healthCheck.healthCheckType "file" }}
+            exec:
+              command:
+                - /bin/sh
+                - -c
+                - "if [ -f {{.Values.healthCheck.healthCheckPath }} ]; then rm -rf {{.Values.healthCheck.healthCheckPath }}; else exit 1; fi"
+            {{- end }}
             initialDelaySeconds: {{ .Values.healthCheck.initialDelaySeconds }}
             timeoutSeconds: {{ .Values.healthCheck.timeoutSeconds }}
             periodSeconds: {{ .Values.healthCheck.periodSeconds }}
             successThreshold: {{ .Values.healthCheck.successThreshold }}
             failureThreshold: {{ .Values.healthCheck.failureThreshold }}
+          {{- end }} 
+          {{- if eq .Values.healthCheck.healthCheckType "https" }}  
           readinessProbe:
             httpGet:
               path: {{ .Values.healthCheck.healthCheckPath | quote }}
