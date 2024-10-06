@@ -182,7 +182,6 @@ spec:
             periodSeconds: {{ .Values.healthCheck.periodSeconds }}
             successThreshold: {{ .Values.healthCheck.successThreshold }}
             failureThreshold: {{ .Values.healthCheck.failureThreshold }}
-          {{- end }} 
           {{- if eq .Values.healthCheck.healthCheckType "https" }}  
           readinessProbe:
             httpGet:
@@ -193,7 +192,8 @@ spec:
             periodSeconds: {{ .Values.healthCheck.periodSeconds }}
             successThreshold: {{ .Values.healthCheck.successThreshold }}
             failureThreshold: {{ .Values.healthCheck.failureThreshold }}
-          {{- end }} 
+          {{- end }}
+          {{- end }}
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
           {{- if .Values.secrets.enabled }}
