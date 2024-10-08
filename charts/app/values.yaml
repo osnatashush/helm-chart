@@ -14,8 +14,8 @@ image:
 
 healthCheck:
   enabled: true
-  # Can be any of: https, file
-  healthCheckType: https
+  # Can be any of: http, file
+  healthCheckType: http
   # if healthCheckType is file,recommended to put the file in /tmp/ready
   healthCheckPath: /
   # if healthCheckType is file, then initial and period should be 5
@@ -113,7 +113,7 @@ resources: {}
   #   memory: 128Mi
 
 
-# autoscaling using KEDA (requires KEDA to be installed in the cluster)
+# Old autoscaling using KEDA (requires KEDA to be installed in the cluster)
 autoscaling:
   # interval in seconds to poll for metrics
   pollingInterval: 30
@@ -150,6 +150,59 @@ autoscaling:
     listName: ""  # Required
     listLength: "1"  # Required
     databaseIndex: "0"  # optional
+
+
+# Autoscaling using KEDA (requires KEDA to be installed in the cluster)
+autoscalingKeda:
+  # Enable or disable the entire Keda autoscaling feature
+  enabled: false
+  # interval in seconds to poll for metrics
+  pollingInterval: 30
+  # cooldown period in number of seconds to wait before scaling down to zero after the last trigger event
+  cooldownPeriod: 300
+  # stabilizationWindowSeconds is the number of seconds to stabilize the metric before scaling to the desired number of replicas (other than zero)
+  stabilizationWindowSeconds: 300
+  # minReplicaCount is the lower limit for the number of replicas that can be set by the autoscaler
+  minReplicaCount: 1
+  # maxReplicaCount is the upper limit for the number of replicas that can be set by the autoscaler
+  maxReplicaCount: 10
+  # Array of trigger configurations
+  # Note: Individual triggers are enabled by default only when added
+  # To disable a specific trigger, set its 'enabled' flag to false
+  # Note: Default values are provided for each trigger type
+  triggers: []
+    # - type: cpu
+    #   enabled: true
+    #   metricType: "Utilization"
+    #   percentage: "50"
+    # - type: memory
+    #   enabled: true
+    #   metricType: "Utilization"
+    #   percentage: "80"
+    # - type: sqs
+    #   enabled: true
+    #   # queueURL is the URL of the SQS queue (required)
+    #   queueURL: ""
+    #   # queueLength is the length of the queue that triggers scaling (required)
+    #   queueLength: "5"
+    #   # awsRegion is the AWS region of the SQS queue (required)
+    #   awsRegion: ""
+    # - type: http
+    #   enabled: true
+    #   hosts: []
+    # - type: redis
+    #   enabled: true
+    #   address: "" # Required host:port format #redis-service.redis-namespace:6379
+    #   listName: "" # Required
+    #   listLength: "1" # Required
+    #   databaseIndex: "0" # optional
+    # - type: cron
+    #   enabled: true
+    #   timezone: "UTC" # https://en.wikipedia.org/wiki/List_of_tz_database_time_zones
+    #   start: "0 8 * * *" # 8:00 UTC
+    #   end: "0 20 * * *" # 20:00 UTC
+    #   # If you want to scale you deployment to 0 outside office hours / working hours, you need to set minReplicaCount: 0
+    #   desiredReplicas: "10" # Minimum number of replicas to scale to during the cron job
 
 nodeSelector: {}
 

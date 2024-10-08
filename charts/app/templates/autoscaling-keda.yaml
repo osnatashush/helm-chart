@@ -1,0 +1,55 @@
+{{- if .Values.autoscalingKeda.enabled }}
+apiVersion: keda.sh/v1alpha1
+kind: ScaledObject
+metadata:
+  name: {{ include "app.fullname" . }}-scaledobject
+spec:
+  scaleTargetRef:
+    name: {{ include "app.fullname" . }}
+  pollingInterval: {{ .Values.autoscalingKeda.pollingInterval }}
+  cooldownPeriod: {{ .Values.autoscalingKeda.cooldownPeriod }}
+  minReplicaCount: {{ .Values.autoscalingKeda.minReplicaCount }}
+  maxReplicaCount: {{ .Values.autoscalingKeda.maxReplicaCount }}
+  triggers:
+  {{- range .Values.autoscalingKeda.triggers }}
+  {{- if ne .enabled false }} # boolean false is considered "empty", so we need to check for not equal to false
+  {{- if eq .type "cpu" }}
+  - type: cpu
+    metricType: {{ .metricType | default "Utilization" }}
+    metadata:
+      value: {{ .percentage | default "50" | quote }}
+  {{- else if eq .type "memory" }}
+  - type: memory
+    metricType: {{ .metricType | default "Utilization" }}
+    metadata:
+      value: {{ .percentage | default "80" | quote }}
+  {{- else if eq .type "sqs" }}
+  - type: aws-sqs-queue
+    metadata:
+      queueURL: {{ .queueURL }}
+      queueLength: {{ .queueLength | default "5" | quote }}
+      awsRegion: {{ .awsRegion }}
+      identityOwner: operator
+  {{- else if eq .type "redis" }}
+  - type: redis
+    metadata:
+      address: {{ .address }}
+      listName: {{ .listName }}
+      listLength: {{ .listLength | default "1" | quote }}
+      databaseIndex: {{ .databaseIndex | default "0" | quote }}
+  {{- else if eq .type "cron" }}
+  - type: cron
+    metadata:
+      timezone: {{ .timezone | default "UTC" }}
+      start: {{ .start | default "0 8 * * *" }}
+      end: {{ .end | default "0 20 * * *" }}
+      desiredReplicas: {{ .desiredReplicas | default "10" | quote }}
+  {{- end }}
+  {{- end }}
+  {{- end }}
+  advanced:
+    horizontalPodAutoscalerConfig:
+      behavior:
+        scaleDown:
+          stabilizationWindowSeconds: {{ .Values.autoscalingKeda.stabilizationWindowSeconds }}
+{{- end }}
