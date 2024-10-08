@@ -175,7 +175,7 @@ spec:
               command:
                 - /bin/sh
                 - -c
-                - "if [ -f {{.Values.healthCheck.healthCheckPath }} ]; then rm -rf {{.Values.healthCheck.healthCheckPath }}; else exit 1; fi"
+                - "if [ -f {{.Values.healthCheck.healthCheckPath }} ]; then rm -f {{.Values.healthCheck.healthCheckPath }}; else exit 1; fi"
             {{- end }}
             initialDelaySeconds: {{ .Values.healthCheck.initialDelaySeconds }}
             timeoutSeconds: {{ .Values.healthCheck.timeoutSeconds }}

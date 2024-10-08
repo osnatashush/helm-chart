@@ -16,9 +16,9 @@ healthCheck:
   enabled: true
   # Can be any of: http, file
   healthCheckType: http
-  # if healthCheckType is file,recommended to put the file in /tmp/ready
+  # if healthCheckType is file, it is highly recommended to use file path '/tmp/ready'
   healthCheckPath: /
-  # if healthCheckType is file, then initial and period should be 5
+  # if healthCheckType is file, it is highly recommended to set initialDelaySeconds to 5
   initialDelaySeconds: 0
   timeoutSeconds: 1
   periodSeconds: 10
