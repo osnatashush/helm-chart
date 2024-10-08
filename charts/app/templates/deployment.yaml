@@ -38,7 +38,7 @@ spec:
       serviceAccountName: {{ include "app.serviceAccountName" . }}
       securityContext:
         {{- toYaml .Values.podSecurityContext | nindent 8 }}
-      {{- if .Values.initContainer.enabled }}  
+      {{- if .Values.initContainer.enabled }}
       initContainer:
         - name: {{ .Chart.Name }}-init
           securityContext:
@@ -80,7 +80,7 @@ spec:
             - secretRef:
                 name: {{ $fullname }}-secrets-env
           {{- end }}
-          {{- end }} 
+          {{- end }}
           imagePullPolicy: {{ .Values.initContainer.image.pullPolicy }}
           {{- if .Values.healthCheck.enabled }}
           livenessProbe:
@@ -101,7 +101,7 @@ spec:
             periodSeconds: {{ .Values.initContainer.healthCheck.periodSeconds }}
             successThreshold: {{ .Values.initContainer.healthCheck.successThreshold }}
             failureThreshold: {{ .Values.initContainer.healthCheck.failureThreshold }}
-          {{- end }} 
+          {{- end }}
           resources:
             {{- toYaml .Values.initContainer.resources | nindent 12 }}
           {{- if .Values.initContainer.secrets.enabled }}
@@ -111,7 +111,7 @@ spec:
             mountPath: {{ .Values.initContainer.secrets.secretsDir }}
           {{- end }}
           {{- end }}
-      {{- end }}   
+      {{- end }}
       containers:
         - name: {{ .Chart.Name }}
           securityContext:
@@ -153,7 +153,7 @@ spec:
             - secretRef:
                 name: {{ $fullname }}-secrets-env
           {{- end }}
-          {{- end }} 
+          {{- end }}
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           ports:
             - name: http
@@ -182,7 +182,7 @@ spec:
             periodSeconds: {{ .Values.healthCheck.periodSeconds }}
             successThreshold: {{ .Values.healthCheck.successThreshold }}
             failureThreshold: {{ .Values.healthCheck.failureThreshold }}
-          {{- if eq .Values.healthCheck.healthCheckType "http" }}  
+          {{- if eq .Values.healthCheck.healthCheckType "http" }}
           readinessProbe:
             httpGet:
               path: {{ .Values.healthCheck.healthCheckPath | quote }}

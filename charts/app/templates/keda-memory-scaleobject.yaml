@@ -5,7 +5,7 @@ metadata:
   name: {{ include "app.fullname" . }}-scaledobject
 spec:
   scaleTargetRef:
-    name:  {{ include "app.fullname" . }} 
+    name:  {{ include "app.fullname" . }}
   pollingInterval: {{ .Values.autoscaling.pollingInterval }}
   cooldownPeriod: {{ .Values.autoscaling.cooldownPeriod }}
   minReplicaCount: {{ .Values.autoscaling.minReplicaCount }}

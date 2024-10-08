@@ -82,7 +82,7 @@ spec:
                     - {{ . | quote }}
                     {{- end }}
                 initialDelaySeconds: {{ .Values.healthCheck.initialDelaySeconds }}
-              {{- end }} 
+              {{- end }}
           {{- with .Values.nodeSelector }}
           nodeSelector:
             {{- toYaml . | nindent 8 }}

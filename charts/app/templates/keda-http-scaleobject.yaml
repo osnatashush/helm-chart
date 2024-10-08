@@ -11,12 +11,12 @@ spec:
       - {{ include "app.fullname" . }}.{{ .Release.Namespace }}.svc.cluster.local
     {{- range .Values.autoscaling.http.hosts }}
       - {{ . }}
-    {{- end }}  
+    {{- end }}
     scaleTargetRef:
-        name: {{ include "app.fullname" . }} 
+        name: {{ include "app.fullname" . }}
         kind: Deployment
         apiVersion: apps/v1
-        service: {{ include "app.fullname" . }} 
+        service: {{ include "app.fullname" . }}
         port: 80
     replicas:
         min: {{ .Values.autoscaling.minReplicaCount }}
