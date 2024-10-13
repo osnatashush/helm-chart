@@ -172,15 +172,12 @@ autoscalingKeda:
   # Note: Default values are provided for each trigger type
   triggers: []
     # - type: cpu
-    #   enabled: true
     #   metricType: "Utilization"
     #   percentage: "50"
     # - type: memory
-    #   enabled: true
     #   metricType: "Utilization"
     #   percentage: "80"
     # - type: sqs
-    #   enabled: true
     #   # queueURL is the URL of the SQS queue (required)
     #   queueURL: ""
     #   # queueLength is the length of the queue that triggers scaling (required)
@@ -188,16 +185,13 @@ autoscalingKeda:
     #   # awsRegion is the AWS region of the SQS queue (required)
     #   awsRegion: ""
     # - type: http
-    #   enabled: true
     #   hosts: []
     # - type: redis
-    #   enabled: true
     #   address: "" # Required host:port format #redis-service.redis-namespace:6379
     #   listName: "" # Required
     #   listLength: "1" # Required
     #   databaseIndex: "0" # optional
     # - type: cron
-    #   enabled: true
     #   timezone: "UTC" # https://en.wikipedia.org/wiki/List_of_tz_database_time_zones
     #   start: "0 8 * * *" # 8:00 UTC
     #   end: "0 20 * * *" # 20:00 UTC

@@ -12,7 +12,6 @@ spec:
   maxReplicaCount: {{ .Values.autoscalingKeda.maxReplicaCount }}
   triggers:
   {{- range .Values.autoscalingKeda.triggers }}
-  {{- if ne .enabled false }} # boolean false is considered "empty", so we need to check for not equal to false
   {{- if eq .type "cpu" }}
   - type: cpu
     metricType: {{ .metricType | default "Utilization" }}
@@ -44,7 +43,6 @@ spec:
       start: {{ .start | default "0 8 * * *" }}
       end: {{ .end | default "0 20 * * *" }}
       desiredReplicas: {{ .desiredReplicas | default "10" | quote }}
-  {{- end }}
   {{- end }}
   {{- end }}
   advanced:
