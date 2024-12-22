@@ -32,6 +32,12 @@ deploymentStrategy: RollingUpdate
 maxUnavailable: 25%
 maxSurge: 25%
 
+podDisruptionBudget:
+  enabled: false
+  # minAvailable: 1
+  # maxUnavailable: 1
+
+
 secrets:
   enabled: false
   annotations:
