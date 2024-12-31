@@ -17,6 +17,12 @@ spec:
       protocol: TCP
       name: metrics
     {{- end}}
+    {{- range .Values.additionalPorts }}
+    - name: {{ .name }}
+      port: {{ .containerPort }}
+      targetPort: {{ .name }}
+      protocol: {{ .protocol | default "TCP" }}
+    {{- end }}
   {{- if .Values.sessionAffinity.enabled }}
   sessionAffinity: ClientIP
   {{- end}}

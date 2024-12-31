@@ -37,6 +37,13 @@ podDisruptionBudget:
   # minAvailable: 1
   # maxUnavailable: 1
 
+additionalPorts: {}
+  # - name: extra1
+  #   containerPort: 8081
+  #   protocol: TCP
+  # - name: extra2
+  #   containerPort: 9000
+  #   protocol: UDP
 
 secrets:
   enabled: false
