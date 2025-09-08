@@ -162,10 +162,10 @@ autoscaling:
     metricType: "Utilization"
   redis:
     enabled: false
-    address: "" # Required host:port format #redis-service.redis-namespace:6379
-    listName: "" # Required
-    listLength: "1" # Required
-    databaseIndex: "0" # optional
+    address: "" #  Required host:port format #redis-service.redis-namespace:6379
+    listName: "" #  Required
+    listLength: "1" #  Required
+    databaseIndex: "0" #  optional
 
 # Autoscaling using KEDA (requires KEDA to be installed in the cluster)
 autoscalingKeda:
