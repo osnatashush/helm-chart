@@ -14,7 +14,7 @@ image:
 
 healthCheck:
   enabled: true
-  # Can be any of: http, file
+  # Can be any of: http, file, tcp
   healthCheckType: http
   # if healthCheckType is file, it is highly recommended to use file path '/tmp/ready'
   healthCheckPath: /
@@ -37,7 +37,8 @@ podDisruptionBudget:
   # minAvailable: 1
   # maxUnavailable: 1
 
-additionalPorts: {}
+additionalPorts:
+  {}
   # - name: extra1
   #   containerPort: 8081
   #   protocol: TCP
@@ -63,7 +64,6 @@ secrets:
   toEnvironments: []
   # - name: secret-name
 
-
 imagePullSecrets: []
 nameOverride: ""
 fullnameOverride: ""
@@ -79,10 +79,12 @@ serviceAccount:
 
 podAnnotations: {}
 
-podSecurityContext: {}
+podSecurityContext:
+  {}
   # fsGroup: 2000
 
-securityContext: {}
+securityContext:
+  {}
   # capabilities:
   #   drop:
   #   - ALL
@@ -100,7 +102,8 @@ sessionAffinity:
 ingress:
   enabled: false
   className: ""
-  annotations: {}
+  annotations:
+    {}
     # kubernetes.io/ingress.class: nginx
     # kubernetes.io/tls-acme: "true"
   hosts:
@@ -113,7 +116,8 @@ ingress:
   #    hosts:
   #      - chart-example.local
 
-resources: {}
+resources:
+  {}
   # We usually recommend not to specify default resources and to leave this as a conscious
   # choice for the user. This also increases chances charts run on environments with little
   # resources, such as Minikube. If you do want to specify resources, uncomment the following
@@ -124,7 +128,6 @@ resources: {}
   # requests:
   #   cpu: 100m
   #   memory: 128Mi
-
 
 # Old autoscaling using KEDA (requires KEDA to be installed in the cluster)
 autoscaling:
@@ -159,11 +162,10 @@ autoscaling:
     metricType: "Utilization"
   redis:
     enabled: false
-    address: ""  # Required host:port format #redis-service.redis-namespace:6379
-    listName: ""  # Required
-    listLength: "1"  # Required
-    databaseIndex: "0"  # optional
-
+    address: ""  # Required host:port format, e.g., redis-service.redis-namespace:6379
+    listName: ""        # Required
+    listLength: "1"     # Required
+    databaseIndex: "0"  # Optional
 
 # Autoscaling using KEDA (requires KEDA to be installed in the cluster)
 autoscalingKeda:
@@ -183,7 +185,8 @@ autoscalingKeda:
   # Note: Individual triggers are enabled by default only when added
   # To disable a specific trigger, set its 'enabled' flag to false
   # Note: Default values are provided for each trigger type
-  triggers: []
+  triggers:
+    []
     # - type: cpu
     #   metricType: "Utilization"
     #   percentage: "50"
@@ -263,10 +266,12 @@ initContainer:
 
   podAnnotations: {}
 
-  podSecurityContext: {}
+  podSecurityContext:
+    {}
     # fsGroup: 2000
 
-  securityContext: {}
+  securityContext:
+    {}
     # capabilities:
     #   drop:
     #   - ALL
@@ -274,7 +279,8 @@ initContainer:
     # runAsNonRoot: true
     # runAsUser: 1000
 
-  resources: {}
+  resources:
+    {}
     # We usually recommend not to specify default resources and to leave this as a conscious
     # choice for the user. This also increases chances charts run on environments with little
     # resources, such as Minikube. If you do want to specify resources, uncomment the following
