@@ -183,17 +183,25 @@ spec:
                 - /bin/sh
                 - -c
                 - "if [ -f {{.Values.healthCheck.healthCheckPath }} ]; then rm -f {{.Values.healthCheck.healthCheckPath }}; else exit 1; fi"
+            {{- else if eq .Values.healthCheck.healthCheckType "tcp" }}
+            tcpSocket:
+              port: {{ .Values.healthCheck.healthCheckPort }}            
             {{- end }}
             initialDelaySeconds: {{ .Values.healthCheck.initialDelaySeconds }}
             timeoutSeconds: {{ .Values.healthCheck.timeoutSeconds }}
             periodSeconds: {{ .Values.healthCheck.periodSeconds }}
             successThreshold: {{ .Values.healthCheck.successThreshold }}
             failureThreshold: {{ .Values.healthCheck.failureThreshold }}
-          {{- if eq .Values.healthCheck.healthCheckType "http" }}
+          {{- if or (eq .Values.healthCheck.healthCheckType "http") (eq .Values.healthCheck.healthCheckType "tcp") }}
           readinessProbe:
+            {{- if eq .Values.healthCheck.healthCheckType "http" }}
             httpGet:
               path: {{ .Values.healthCheck.healthCheckPath | quote }}
               port: http
+            {{- else if eq .Values.healthCheck.healthCheckType "tcp" }}
+            tcpSocket:
+              port: {{ .Values.healthCheck.healthCheckPort }}
+            {{- end }}              
             initialDelaySeconds: {{ .Values.healthCheck.initialDelaySeconds }}
             timeoutSeconds: {{ .Values.healthCheck.timeoutSeconds }}
             periodSeconds: {{ .Values.healthCheck.periodSeconds }}
