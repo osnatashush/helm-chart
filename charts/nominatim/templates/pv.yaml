@@ -1,0 +1,22 @@
+{{- if .Values.storage.createPV }}
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: {{ include "shared.resolve" (dict "value" (include "nominatim.pvName" .) "context" .) }}
+  labels:
+    {{- include "nominatim.labels" . | nindent 4 }}
+    app: {{ include "shared.resolve" (dict "value" (include "nominatim.appLabel" .) "context" .) }}
+spec:
+  capacity:
+    storage: {{ include "shared.resolve" (dict "value" .Values.storage.size "context" .) }}
+  volumeMode: Filesystem
+  accessModes:
+{{- range .Values.storage.accessModes }}
+    - {{ . }}
+{{- end }}
+  storageClassName: {{ include "shared.resolve" (dict "value" .Values.storage.storageClassName "context" .) }}
+  persistentVolumeReclaimPolicy: {{ .Values.storage.persistentVolumeReclaimPolicy | default "Retain" }}
+  csi:
+    driver: efs.csi.aws.com
+    volumeHandle: {{ include "shared.resolve" (dict "value" .Values.storage.efsVolumeHandle "context" .) }}
+{{- end }}

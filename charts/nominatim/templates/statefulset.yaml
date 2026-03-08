@@ -1,0 +1,143 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: {{ include "shared.resolve" (dict "value" (include "nominatim.statefulsetName" .) "context" .) }}
+  namespace: {{ include "shared.get" (dict "key" "namespace" "context" .) | default "nominatim" }}
+  labels:
+    {{- include "nominatim.labels" . | nindent 4 }}
+{{- if .Values.appName }}
+    app: {{ include "shared.resolve" (dict "value" .Values.appName "context" .) }}
+{{- end }}
+spec:
+  serviceName: {{ include "shared.resolve" (dict "value" (include "nominatim.serviceName" .) "context" .) }}
+  replicas: {{ include "shared.resolve" (dict "value" .Values.replicaCount "context" .) }}
+  selector:
+    matchLabels:
+      app: {{ include "shared.resolve" (dict "value" (include "nominatim.appLabel" .) "context" .) }}
+  template:
+    metadata:
+{{- with .Values.podAnnotations }}
+      annotations:
+{{- range $key, $value := . }}
+        {{ $key }}: {{ include "shared.resolve" (dict "value" $value "context" $) | quote }}
+{{- end }}
+{{- end }}
+      labels:
+        app: {{ include "shared.resolve" (dict "value" (include "nominatim.appLabel" .) "context" .) }}
+        {{- include "nominatim.selectorLabels" . | nindent 8 }}
+    spec:
+      priorityClassName: high-priority
+{{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+{{- end }}
+      serviceAccountName: {{ include "shared.resolve" (dict "value" (include "nominatim.serviceAccountName" .) "context" .) }}
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+{{- with .Values.tolerations }}
+      tolerations:
+{{- range $toleration := . }}
+        - {{- range $key, $value := $toleration }}
+          {{ $key }}: {{ include "shared.resolve" (dict "value" $value "context" $) }}
+          {{- end }}
+{{- end }}
+{{- end }}
+      containers:
+        - name: nominatim
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          image: "{{ include "shared.resolve" (dict "value" .Values.image.repository "context" .) }}:{{ include "shared.resolve" (dict "value" (.Values.image.tag | default .Chart.AppVersion) "context" .) }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          {{- $rc := (include "nominatim.effectiveRegionConfig" . | fromYaml) }}
+          env:
+            - name: PBF_URL
+              value: {{ include "shared.resolve" (dict "value" $rc.pbfUrl "context" .) | quote }}
+            - name: REPLICATION_URL
+              value: {{ include "shared.resolve" (dict "value" $rc.replicationUrl "context" .) | quote }}
+            - name: IMPORT_STYLE
+              value: {{ include "shared.resolve" (dict "value" .Values.nominatim.importStyle "context" .) | quote }}
+{{- if .Values.storage.enabled }}
+          volumeMounts:
+            - name: efs-storage
+              mountPath: {{ .Values.storage.mounts.postgresql.mountPath }}
+              subPath: {{ include "nominatim.postgresqlSubPath" . }}
+            - name: efs-storage
+              mountPath: {{ .Values.storage.mounts.flatnode.mountPath }}
+              subPath: {{ include "nominatim.flatnodeSubPath" . }}
+{{- end }}
+          ports:
+            - containerPort: 8080
+              name: http
+              protocol: TCP
+          resources:
+{{- if .Values.resources.limits }}
+            limits:
+{{- range $key, $value := .Values.resources.limits }}
+              {{ $key }}: {{ include "shared.resolve" (dict "value" $value "context" $) }}
+{{- end }}
+{{- end }}
+{{- if .Values.resources.requests }}
+            requests:
+{{- range $key, $value := .Values.resources.requests }}
+              {{ $key }}: {{ include "shared.resolve" (dict "value" $value "context" $) }}
+{{- end }}
+{{- end }}
+{{- if .Values.readinessProbe.enabled }}
+          readinessProbe:
+            tcpSocket:
+              port: {{ include "shared.resolve" (dict "value" .Values.readinessProbe.tcpSocket.port "context" .) }}
+            initialDelaySeconds: {{ include "shared.resolve" (dict "value" .Values.readinessProbe.initialDelaySeconds "context" .) }}
+            periodSeconds: {{ include "shared.resolve" (dict "value" .Values.readinessProbe.periodSeconds "context" .) }}
+{{- end }}
+{{- if .Values.startupProbe.enabled }}
+          startupProbe:
+            tcpSocket:
+              port: {{ include "shared.resolve" (dict "value" .Values.startupProbe.tcpSocket.port "context" .) }}
+            failureThreshold: {{ include "shared.resolve" (dict "value" .Values.startupProbe.failureThreshold "context" .) }}
+            periodSeconds: {{ include "shared.resolve" (dict "value" .Values.startupProbe.periodSeconds "context" .) }}
+{{- end }}
+{{- if .Values.livenessProbe.enabled }}
+          livenessProbe:
+            httpGet:
+              path: {{ include "nominatim.livenessPath" . }}
+              port: {{ include "shared.resolve" (dict "value" .Values.livenessProbe.httpGet.port "context" .) }}
+            initialDelaySeconds: {{ include "shared.resolve" (dict "value" .Values.livenessProbe.initialDelaySeconds "context" .) }}
+            periodSeconds: {{ include "shared.resolve" (dict "value" .Values.livenessProbe.periodSeconds "context" .) }}
+            failureThreshold: {{ include "shared.resolve" (dict "value" .Values.livenessProbe.failureThreshold "context" .) }}
+{{- end }}
+{{- if .Values.storage.enabled }}
+      volumes:
+        - name: efs-storage
+          persistentVolumeClaim:
+            claimName: {{ include "shared.resolve" (dict "value" (include "nominatim.pvcName" .) "context" .) }}
+{{- end }}
+{{- with .Values.nodeSelector }}
+      nodeSelector:
+{{- range $key, $value := . }}
+        {{ $key }}: {{ include "shared.resolve" (dict "value" $value "context" $) }}
+{{- end }}
+{{- end }}
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                  - key: eks.amazonaws.com/capacityType
+                    operator: In
+                    values:
+                      - ON_DEMAND
+              - matchExpressions:
+                  - key: karpenter.sh/capacity-type
+                    operator: In
+                    values:
+                      - on-demand
+        {{- with .Values.affinity }}
+        {{- if .podAffinity }}
+        podAffinity:
+          {{- toYaml .podAffinity | nindent 10 }}
+        {{- end }}
+        {{- if .podAntiAffinity }}
+        podAntiAffinity:
+          {{- toYaml .podAntiAffinity | nindent 10 }}
+        {{- end }}
+        {{- end }}

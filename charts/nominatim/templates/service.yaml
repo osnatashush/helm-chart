@@ -1,0 +1,23 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "shared.resolve" (dict "value" (include "nominatim.internalServiceName" .) "context" .) }}
+  namespace: {{ include "shared.get" (dict "key" "namespace" "context" .) | default "nominatim" }}
+  labels:
+    {{- include "nominatim.labels" . | nindent 4 }}
+    app: {{ include "shared.resolve" (dict "value" (include "nominatim.appLabel" .) "context" .) }}
+  annotations:
+{{- with .Values.service.annotations }}
+{{- range $key, $value := . }}
+    {{ $key }}: {{ include "shared.resolve" (dict "value" $value "context" $) | quote }}
+{{- end }}
+{{- end }}
+spec:
+  type: {{ include "shared.resolve" (dict "value" .Values.service.type "context" .) }}
+  ports:
+    - port: {{ include "shared.resolve" (dict "value" .Values.service.port "context" .) }}
+      targetPort: {{ include "shared.resolve" (dict "value" .Values.service.targetPort "context" .) }}
+      protocol: TCP
+      name: http
+  selector:
+    app: {{ include "shared.resolve" (dict "value" (include "nominatim.appLabel" .) "context" .) }}

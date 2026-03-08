@@ -1,0 +1,19 @@
+{{- if .Values.storage.enabled }}
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ include "shared.resolve" (dict "value" (include "nominatim.pvcName" .) "context" .) }}
+  namespace: {{ include "shared.get" (dict "key" "namespace" "context" .) | default "nominatim" }}
+  labels:
+    {{- include "nominatim.labels" . | nindent 4 }}
+    app: {{ include "shared.resolve" (dict "value" (include "nominatim.appLabel" .) "context" .) }}
+spec:
+  accessModes:
+{{- range .Values.storage.accessModes }}
+    - {{ . }}
+{{- end }}
+  storageClassName: {{ include "shared.resolve" (dict "value" .Values.storage.storageClassName "context" .) }}
+  resources:
+    requests:
+      storage: {{ include "shared.resolve" (dict "value" .Values.storage.size "context" .) }}
+{{- end }}

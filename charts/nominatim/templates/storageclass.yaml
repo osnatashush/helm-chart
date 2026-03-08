@@ -1,0 +1,11 @@
+{{- if .Values.storage.createStorageClass }}
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: {{ include "shared.resolve" (dict "value" .Values.storage.storageClassName "context" .) }}
+  labels:
+    {{- include "nominatim.labels" . | nindent 4 }}
+provisioner: efs.csi.aws.com
+volumeBindingMode: {{ .Values.storage.volumeBindingMode | default "Immediate" }}
+reclaimPolicy: {{ .Values.storage.reclaimPolicy | default "Retain" }}
+{{- end }}

@@ -1,0 +1,186 @@
+# Default values for nominatim.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+# Centralized configuration values for templating
+# These values can be referenced in environment variables using {{Values.key}} syntax
+# They will be read from the ConfigMap and used to resolve templates
+centralConfig:
+  namespace: ""
+  domain: ""
+  environment: ""
+  region: ""
+  # Add more centralized values as needed
+
+# Application identifier - used to distinguish between different apps
+appName: ""
+
+# Nominatim dataset region selector.
+# Supported values: south-africa, israel
+# Default: south-africa
+#
+# IMPORTANT: this is intentionally NOT named "region" to avoid colliding with
+# the shared centralConfig.region (AWS region) used elsewhere.
+nominatimRegion: "south-africa"
+
+# Region configuration for nominatim
+# Supported regions: south-africa (default), israel
+# To use a different region, override these values in your deployment
+regionConfig:
+  # Region name (used in resource names and labels)
+  name: "south-africa"
+  # Country code for the region
+  countryCode: "za"
+  # PBF download URL for the region
+  pbfUrl: "https://download.geofabrik.de/africa/south-africa-latest.osm.pbf"
+  # Replication URL for updates
+  replicationUrl: "https://download.geofabrik.de/africa/south-africa-updates/"
+  # Test coordinates for liveness probe (lat, lon within the region)
+  testCoordinates:
+    lat: "-26.253270"
+    lon: "28.084299"
+
+# Built-in region presets. These are used automatically when nominatimRegion is set.
+regionPresets:
+  south-africa:
+    name: "south-africa"
+    countryCode: "za"
+    pbfUrl: "https://download.geofabrik.de/africa/south-africa-latest.osm.pbf"
+    replicationUrl: "https://download.geofabrik.de/africa/south-africa-updates/"
+    testCoordinates:
+      lat: "-26.253270"
+      lon: "28.084299"
+  israel:
+    name: "israel"
+    countryCode: "il"
+    pbfUrl: "https://download.geofabrik.de/asia/israel-and-palestine-latest.osm.pbf"
+    replicationUrl: "https://download.geofabrik.de/asia/israel-and-palestine-updates/"
+    testCoordinates:
+      lat: "32.0853"
+      lon: "34.7818"
+
+# StatefulSet configuration
+replicaCount: 1
+
+image:
+  repository: mediagis/nominatim
+  pullPolicy: IfNotPresent
+  tag: "4.4"
+
+# Nominatim specific configuration
+nominatim:
+  # Import style for nominatim
+  importStyle: "address"
+  # Environment variables for nominatim container
+  env:
+    PBF_URL: "" # Will be set from regionConfig.pbfUrl
+    REPLICATION_URL: "" # Will be set from regionConfig.replicationUrl
+    IMPORT_STYLE: "" # Will be set from nominatim.importStyle
+
+# Storage configuration
+storage:
+  # Enable persistent storage
+  enabled: true
+  # Create StorageClass (set to false if it already exists)
+  createStorageClass: true
+  # Create PersistentVolume (set to false if using dynamic provisioning)
+  createPV: true
+  # Storage class name
+  storageClassName: "efs-sc"
+  # Storage size
+  size: "121Gi"
+  # Access modes
+  accessModes:
+    - ReadWriteMany
+
+  # Volume binding mode for StorageClass
+  volumeBindingMode: "Immediate"
+  # Reclaim policy for StorageClass
+  reclaimPolicy: "Retain"
+  # Persistent volume reclaim policy
+  persistentVolumeReclaimPolicy: "Retain"
+  # Volume mounts configuration
+  mounts:
+    postgresql:
+      mountPath: "/var/lib/postgresql/14/main"
+      subPath: "postgresql"
+    flatnode:
+      mountPath: "/nominatim/flatnode"
+      subPath: "flatnode"
+
+imagePullSecrets: []
+nameOverride: ""
+fullnameOverride: ""
+
+podAnnotations: {}
+
+podSecurityContext: {}
+
+securityContext: {}
+
+# Resource configuration
+resources:
+  limits:
+    cpu: "400m"
+    memory: "1Gi"
+  requests:
+    cpu: "200m"
+    memory: "1Gi"
+
+# Node selector
+nodeSelector: {}
+
+# Tolerations
+tolerations: []
+# Example tolerations for dedicated nodes:
+# tolerations:
+#   - key: "nominatim-import"
+#     operator: "Equal"
+#     value: "true"
+#     effect: "NoSchedule"
+
+# Affinity rules
+affinity: {}
+
+# Service configuration
+service:
+  type: ClusterIP
+  port: 80
+  targetPort: 8080
+  nameOverride: ""
+  annotations: {}
+
+# Health check configuration
+livenessProbe:
+  enabled: true
+  httpGet:
+    path: "" # Will be set from regionConfig.testCoordinates
+    port: 8080
+  initialDelaySeconds: 30
+  periodSeconds: 5
+  failureThreshold: 3
+
+readinessProbe:
+  enabled: true
+  tcpSocket:
+    port: 8080
+  initialDelaySeconds: 10
+  periodSeconds: 3
+
+startupProbe:
+  enabled: true
+  tcpSocket:
+    port: 8080
+  failureThreshold: 700
+  periodSeconds: 30
+
+# Service account configuration
+serviceAccount:
+  create: false
+  annotations: {}
+  name: ""
+
+# Common environment variables
+commonEnv:
+  enabled: false
+  configMapName: common-env
